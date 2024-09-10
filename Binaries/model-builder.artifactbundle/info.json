@@ -1,0 +1,19 @@
+{
+        "schemaVersion": "1.0",
+        "artifacts": {
+            "model-builder": {
+                "type": "executable",
+                "version": "1.0.0",
+                "variants": [
+                    {
+                        "path": "macos/model-builder_macos_universal",
+                        "supportedTriples": ["x86_64-apple-macosx", "arm64-apple-macosx"]
+                    },
+                    {
+                        "path": "linux/model-builder_linux_x86_64",
+                        "supportedTriples": ["x86_64-unknown-linux-gnu"]
+                    }
+                ]
+            }
+        }
+    }
