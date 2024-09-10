@@ -11,7 +11,7 @@ struct ModelBuilderPlugin: BuildToolPlugin
         guard let sourceFiles = target.sourceModule?.sourceFiles else { return [] }
         
         // Find the code generator tool to run (replace this with the actual one).
-        let generatorTool = try context.tool( named: "ModelBuilder" )
+        let generatorTool = try context.tool( named: "model-builder" )
         
         // Construct a build command for each source file with a particular suffix.
         return sourceFiles.map(\.path).compactMap {
@@ -29,7 +29,7 @@ extension ModelBuilderPlugin: XcodeBuildToolPlugin
     func createBuildCommands(context: XcodePluginContext, target: XcodeTarget) throws -> [Command]
     {
         // Find the code generator tool to run (replace this with the actual one).
-        let generatorTool = try context.tool(named: "ModelBuilder")
+        let generatorTool = try context.tool(named: "model-builder")
                 
         // Construct a build command for each source file with a particular suffix.
         return target.inputFiles.map(\.path).compactMap {
