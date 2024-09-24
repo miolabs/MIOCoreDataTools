@@ -55,7 +55,7 @@ class ModelClassesOutputDelegate : ModelOutputDelegate
         fileContent += "import MIOCoreData\n"
         fileContent += "\n\n"
         fileContent += "extension \(entity.classname)\n{\n\n"
-        if _objc_support { fileContent += "@nonobjc\n"}
+//        if _objc_support { fileContent += "@nonobjc\n"}
 //        fileContent += "public class func fetchRequest() -> NSFetchRequest<\(entity.classname)> {\n"
 //        fileContent += "  return NSFetchRequest<\(entity.classname)>(entityName: \"\(entity.classname)\") }\n\n"
         
@@ -143,7 +143,7 @@ class ModelClassesOutputDelegate : ModelOutputDelegate
         
         fileContent += "    // Relationship: \(name)\n"
         
-        if toMany == "NO" {
+        if toMany == false {
             if _objc_support {
                 fileContent += "    @NSManaged public var \(name):\(destinationEntity)\(optional ? "?" : "")\n"
             } else {

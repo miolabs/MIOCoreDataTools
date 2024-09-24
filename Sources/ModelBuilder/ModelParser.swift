@@ -120,7 +120,7 @@ class ModelParser :NSObject, XMLParserDelegate
             let inverseEntityName = attributeDict["inverseEntity"]
             let deletionRule = attributeDict["deletionRule"]!
             
-            current_relationship = Relationship(name: name, destinationEntityName: destinationEntityName, toMany: toMany, optional: (optional == "YES"), inverseName: inverseName, inverseEntityName: inverseEntityName, deletionRule: deletionRule)
+            current_relationship = Relationship(name: name, destinationEntityName: destinationEntityName, toMany: (toMany == "YES"), optional: (optional == "YES"), inverseName: inverseName, inverseEntityName: inverseEntityName, deletionRule: deletionRule)
             last_item = current_relationship
         }
         else if elementName == "userInfo" {

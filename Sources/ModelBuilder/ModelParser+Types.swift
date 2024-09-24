@@ -20,6 +20,7 @@ class Entity : UserInfoProtocol
     var userInfo:[String:String]?
     
     var isProtocol:Bool = false
+    var isServer:Bool = false
     weak var parent:Entity? = nil
         
     init(name: String, classname: String, parenName: String?, parent: Entity? = nil, isAbstract: Bool) {
@@ -69,14 +70,14 @@ class Relationship : UserInfoProtocol, Equatable, Hashable
 
     let name:String
     let destinationEntityName:String
-    let toMany:String
+    let toMany:Bool
     let optional:Bool
     let inverseName:String?
     let inverseEntityName:String?
     let deletionRule:String
     var userInfo:[String:String]?
 
-    init(name: String, destinationEntityName: String, toMany: String, optional: Bool, inverseName: String?, inverseEntityName: String?, deletionRule: String) {
+    init(name: String, destinationEntityName: String, toMany: Bool, optional: Bool, inverseName: String?, inverseEntityName: String?, deletionRule: String) {
         self.name = name
         self.destinationEntityName = destinationEntityName
         self.toMany = toMany

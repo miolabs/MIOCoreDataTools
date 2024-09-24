@@ -48,13 +48,20 @@ extension ModelBuilderPlugin
         guard inputPath.extension == "xcdatamodeld" else { return .none }
         
         var arguments:[String] = []
-        
-        arguments.append( "generate-classes" )
-        arguments.append( "-i" )
-        arguments.append( "\(inputPath)" )
-        if objc { arguments.append( "--objc" ) }
-        arguments.append( "\(outputDirectoryPath)" )
-        
+
+        if configPath != nil {
+            arguments.append( "generate-classes" )
+            arguments.append( "-i" )
+            arguments.append( "\(inputPath)" )
+            if objc { arguments.append( "--objc" ) }
+            arguments.append( "\(outputDirectoryPath)" )
+        }
+        else {
+            if objc { arguments.append( "--objc" ) }
+            arguments.append( "-i" )
+            arguments.append( "\(inputPath)" )
+            arguments.append( "\(outputDirectoryPath)" )
+        }
         
         // Return a command that will run during the build to generate the output file.
         return .prebuildCommand(displayName: "Generating model classes from \(inputPath) to \(outputDirectoryPath) with \(toolPath)",

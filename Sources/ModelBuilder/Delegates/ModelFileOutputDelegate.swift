@@ -31,6 +31,7 @@ class ModelFileOutputDelegate : ModelOutputDelegate
         // Let's build the graph
         for (_,e) in entities_by_name {
             if ( e.userInfo?[ "DBProtocol"] ?? "false" ) == "true" { e.isProtocol = true }
+            if ( e.userInfo?[ "DBSyncType"] ?? "manager" ) == "server" { e.isServer = true }
             if e.parenName == nil { continue }
             e.parent = entities_by_name[ e.parenName! ]
         }
@@ -40,8 +41,25 @@ class ModelFileOutputDelegate : ModelOutputDelegate
         
         let sorted_entities = entities_by_name.sorted { $0.key < $1.key }
         for (_,e) in sorted_entities {
-            if e.isProtocol { continue }
+            if e.isProtocol || e.isServer { continue }
             _ = e.protocolProperties()
+            
+            var rels_to_delete:[Relationship] = []
+            for r in e.relationships {
+                let rel_e = entities_by_name[ r.destinationEntityName ]!
+                if rel_e.isProtocol || rel_e.isServer {
+                    rels_to_delete.append( r )
+                }
+                
+                if r.inverseEntityName != nil {
+                    if let inverse = entities_by_name[ r.inverseEntityName! ] {
+                        if inverse.isProtocol || inverse.isServer {
+                            rels_to_delete.append( r )
+                        }
+                    }
+                }
+            }
+            e.relationships.removeAll( where: { rels_to_delete.contains($0) } )
             entities.append( e )
         }
         
@@ -175,9 +193,14 @@ extension Relationship
         var attrs = [ ("name", name),
                       ("destinationEntity", destinationEntityName),
                       ("optional", optional ? "YES" : "NO"),
-                      ("isToMany", toMany ),
                       ("deletionRule", deletionRule) ]
 
+        if toMany {
+            attrs.append( ("isToMany", "YES" ) )
+        }
+        else {
+            attrs.append( ("maxCount", "1" ) )
+        }
         
         if let inv_ent_name = inverseEntityName {
             if let inv_ent = entitiesByName[inv_ent_name] {
