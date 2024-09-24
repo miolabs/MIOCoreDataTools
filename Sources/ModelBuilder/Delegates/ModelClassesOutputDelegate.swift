@@ -7,7 +7,7 @@
 
 import Foundation
 
-class SwiftModelOutputDelegate : ModelOutputDelegate
+class ModelClassesOutputDelegate : ModelOutputDelegate
 {
     var namespace:String? = nil
     
@@ -38,36 +38,44 @@ class SwiftModelOutputDelegate : ModelOutputDelegate
         self.namespace = namespace
     }
     
-    func openModelEntity(parser:ModelParser, filename:String, classname:String, parentName:String?)
+    func entityDidFound( parser:ModelParser, entity:Entity )
     {
-        self.filename = "/\(filename)+CoreDataProperties.swift"
-        let cn = classname
-        currentClassEntityName = cn;
-        currentClassName = classname;
+        self.filename = "/\(entity.name)+CoreDataProperties.swift"
+        currentClassEntityName = entity.classname;
+        currentClassName = entity.classname;
         
         relationships = []
         primitiveProperties = []
         
-        currentParentClassName = parentName
+        currentParentClassName = entity.parenName
         
         fileContent = "\n"
-        fileContent += "// Generated class \(cn) by MIO CORE DATA Model Builder\n"
+        fileContent += "// Generated class \(entity.classname) by MIO CORE DATA Model Builder\n"
         fileContent += "import Foundation\n"
         fileContent += "import MIOCoreData\n"
         fileContent += "\n\n"
-        fileContent += "extension \(cn)\n{\n\n"
+        fileContent += "extension \(entity.classname)\n{\n\n"
         if _objc_support { fileContent += "@nonobjc\n"}
-        fileContent += "public class func fetchRequest() -> NSFetchRequest<\(cn)> {\n"
-        fileContent += "  return NSFetchRequest<\(cn)>(entityName: \"\(cn)\") }\n\n"
+//        fileContent += "public class func fetchRequest() -> NSFetchRequest<\(entity.classname)> {\n"
+//        fileContent += "  return NSFetchRequest<\(entity.classname)>(entityName: \"\(entity.classname)\") }\n\n"
+        
+        for attr in entity.attributes { appendAttribute( attr ) }        
+        for rel in entity.relationships { appendRelationship( rel ) }
+        
+        closeModelEntity( parser: parser )
     }
     
-    func appendAttribute(parser:ModelParser, name:String, type:String, optional:Bool, defaultValue:String?, usesScalarValueType:Bool)
+    func appendAttribute( _ attribute:Attribute )
     {
         let t:String
         let cast_t:String
         
-        switch type {
+        let name = attribute.name
+        let usesScalarValueType = attribute.usesScalarValueType
+        let optional = attribute.optional
+        let type = attribute.type
         
+        switch type {
         case "Boolean":
             t = usesScalarValueType == false ? "NSNumber?" : "Bool"
             cast_t = usesScalarValueType == false ? "as? NSNumber" : "as! Bool"
@@ -126,8 +134,13 @@ class SwiftModelOutputDelegate : ModelOutputDelegate
         }
     }
     
-    func appendRelationship(parser:ModelParser, name:String, destinationEntity:String, toMany:String, optional:Bool)
+    func appendRelationship( _ relationship: Relationship )
     {
+        let name = relationship.name
+        let toMany = relationship.toMany
+        let destinationEntity = relationship.destinationEntityName
+        let optional = relationship.optional
+        
         fileContent += "    // Relationship: \(name)\n"
         
         if toMany == "NO" {
@@ -236,7 +249,7 @@ class SwiftModelOutputDelegate : ModelOutputDelegate
         }
     }
     
-    func writeModelFile(parser:ModelParser)
+    func parserDidEnd( parser:ModelParser )
     {
         if !_objc_support {
             let modelPath = parser.modelPath

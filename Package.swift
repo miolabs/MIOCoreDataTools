@@ -12,7 +12,8 @@ var targets:[Target] = [
     .executableTarget(
         name: "ModelBuilder",
         dependencies: [
-            .product( name: "ArgumentParser", package: "swift-argument-parser" )
+            .product( name: "ArgumentParser", package: "swift-argument-parser" ),
+            .product( name: "DYXML", package: "DYXML" ),
         ]
     ),
     .testTarget(
@@ -39,7 +40,8 @@ let package = Package(
     name: "MIOCoreDataTools",
     products: products,
     dependencies: [
-        .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.2.0"),
+        .package(url: "https://github.com/apple/swift-argument-parser.git", from: "1.5.0"),
+        .package(url: "https://github.com/davidy4ng/DYXML.git", from: "1.0.0")
     ],
     targets: targets
 )

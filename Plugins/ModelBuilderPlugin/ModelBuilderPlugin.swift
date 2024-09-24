@@ -49,10 +49,12 @@ extension ModelBuilderPlugin
         
         var arguments:[String] = []
         
-        if objc { arguments.append( "--objc" ) }
-        arguments.append( "-o" )
-        arguments.append( "\(outputDirectoryPath)" )
+        arguments.append( "generate-classes" )
+        arguments.append( "-i" )
         arguments.append( "\(inputPath)" )
+        if objc { arguments.append( "--objc" ) }
+        arguments.append( "\(outputDirectoryPath)" )
+        
         
         // Return a command that will run during the build to generate the output file.
         return .prebuildCommand(displayName: "Generating model classes from \(inputPath) to \(outputDirectoryPath) with \(toolPath)",
