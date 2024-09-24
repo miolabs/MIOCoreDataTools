@@ -58,9 +58,9 @@ extension ModelBuilderPlugin
         }
         else {
             if objc { arguments.append( "--objc" ) }
-            arguments.append( "-i" )
-            arguments.append( "\(inputPath)" )
+            arguments.append( "-o" )
             arguments.append( "\(outputDirectoryPath)" )
+            arguments.append( "\(inputPath)" )
         }
         
         // Return a command that will run during the build to generate the output file.
