@@ -122,14 +122,35 @@ class ModelFileOutputDelegate : ModelOutputDelegate
                 try FileManager.default.createDirectory(atPath: folder, withIntermediateDirectories: true)
             }
             
-            let url:URL
-            if #available(macOS 13.0, *) {
-                url = URL( filePath: path, directoryHint: .notDirectory )
-            } else {
-                // Fallback on earlier versions
-                url = URL(fileURLWithPath: path)
+            func fileURL(path:String) -> URL {
+                let url:URL
+                if #available(macOS 13.0, *) {
+                    url = URL( filePath: path, directoryHint: .notDirectory )
+                } else {
+                    // Fallback on earlier versions
+                    url = URL(fileURLWithPath: path)
+                }
+                return url
             }
-            try content?.write( to: url )
+            
+            try content?.write( to: fileURL(path: path) )
+            
+            let version_path = parser.modelPath + "/.xccurrentversion"
+            if FileManager.default.fileExists(atPath: version_path) {
+                try FileManager.default.removeItem( atPath: version_path )
+            }
+            
+            let version_content = """
+            <?xml version="1.0" encoding="UTF-8"?>
+            <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+            <plist version="1.0">
+            <dict>
+                <key>_XCCurrentVersionName</key>
+                <string>\(parser.modelVersionName)</string>
+            </dict>
+            </plist>
+            """.data(using: .utf8)
+            try version_content?.write( to: fileURL(path: version_path) )
         
         } catch {
             print("\(error)")
@@ -196,7 +217,7 @@ extension Relationship
                       ("deletionRule", deletionRule) ]
 
         if toMany {
-            attrs.append( ("isToMany", "YES" ) )
+            attrs.append( ("toMany", "YES" ) )
         }
         else {
             attrs.append( ("maxCount", "1" ) )
