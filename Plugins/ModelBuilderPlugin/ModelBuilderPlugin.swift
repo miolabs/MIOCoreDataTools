@@ -49,19 +49,18 @@ extension ModelBuilderPlugin
         
         var arguments:[String] = []
 
-        if configPath != nil {
-            arguments.append( "generate-classes" )
-            arguments.append( "-i" )
-            arguments.append( "\(inputPath)" )
-            if objc { arguments.append( "--objc" ) }
-            arguments.append( "\(outputDirectoryPath)" )
-        }
-        else {
-            if objc { arguments.append( "--objc" ) }
-            arguments.append( "-o" )
-            arguments.append( "\(outputDirectoryPath)" )
-            arguments.append( "\(inputPath)" )
-        }
+        #if os(Linux)
+        if objc { arguments.append( "--objc" ) }
+        arguments.append( "-o" )
+        arguments.append( "\(outputDirectoryPath)" )
+        arguments.append( "\(inputPath)" )
+        #else
+        arguments.append( "generate-classes" )
+        arguments.append( "-i" )
+        arguments.append( "\(inputPath)" )
+        if objc { arguments.append( "--objc" ) }
+        arguments.append( "\(outputDirectoryPath)" )
+        #endif
         
         // Return a command that will run during the build to generate the output file.
         return .prebuildCommand(displayName: "Generating model classes from \(inputPath) to \(outputDirectoryPath) with \(toolPath)",
