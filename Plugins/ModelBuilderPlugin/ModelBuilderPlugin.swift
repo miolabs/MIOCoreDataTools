@@ -53,7 +53,7 @@ extension ModelBuilderPlugin
         if objc { arguments.append( "--objc" ) }
         arguments.append( "-o" )
         arguments.append( "\(outputDirectoryPath)" )
-        arguments.append( "\(inputPath)/DualLinkDB 63.xcdatamodel/contents" )
+        arguments.append( "\(inputPath)" )
         #else
         arguments.append( "generate-classes" )
         arguments.append( "-i" )
