@@ -24,6 +24,9 @@ class ModelClassesOutputDelegate : ModelOutputDelegate
     
     var _model_register_content:String = ""
     
+    var entities:[Entity] = []
+    var entityByName:[String:Entity] = [:]
+    
     let _objc_support:Bool
     init( objcSupport:Bool ) {
         _objc_support = objcSupport
@@ -38,7 +41,12 @@ class ModelClassesOutputDelegate : ModelOutputDelegate
         self.namespace = namespace
     }
     
-    func entityDidFound( parser:ModelParser, entity:Entity )
+    func entityDidFound( parser:ModelParser, entity:Entity ) {
+        entities.append( entity )
+        entityByName[entity.name] = entity
+    }
+    
+    func appendEntity( parser:ModelParser, entity:Entity )
     {
         self.filename = "/\(entity.name)+CoreDataProperties.swift"
         currentClassEntityName = entity.classname;
@@ -142,8 +150,8 @@ class ModelClassesOutputDelegate : ModelOutputDelegate
     {
         let name = relationship.name
         let toMany = relationship.toMany
-        let destinationEntity = relationship.destinationEntityName
         let optional = relationship.optional
+        let destinationEntity = entityByName[relationship.destinationEntityName]?.classname ?? relationship.destinationEntityName
         
         fileContent += "    // Relationship: \(name)\n"
         
@@ -255,6 +263,10 @@ class ModelClassesOutputDelegate : ModelOutputDelegate
     
     func parserDidEnd( parser:ModelParser )
     {
+        for e in entities {
+            appendEntity( parser: parser, entity: e)
+        }
+        
         if !_objc_support {
             let modelPath = parser.modelPath
             
