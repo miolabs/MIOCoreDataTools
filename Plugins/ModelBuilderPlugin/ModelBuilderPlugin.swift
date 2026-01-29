@@ -47,6 +47,11 @@ extension ModelBuilderPlugin
         // Skip any file that doesn't have the extension we're looking for (replace this with the actual one).
         guard inputPath.extension == "xcdatamodeld" else { return .none }
         
+        let environment = getenv("CORE_DATA_MODEL_FILE_NAME")
+        print("CORE_DATA_MODEL_FILE_NAME: \(String(describing: environment))")
+        
+        if inputPath.lastComponent != "POSModel3.xcdatamodeld" { return .none }
+        
         var arguments:[String] = []
 
         #if os(Linux)

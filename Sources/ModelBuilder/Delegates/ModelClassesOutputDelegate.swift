@@ -122,14 +122,18 @@ class ModelClassesOutputDelegate : ModelOutputDelegate
             cast_t = optional ? "as? \(type)" : "as! \(type)"
         }
         
+        // check reserved named
+        let reserved_names = [ "protocol"]
+        let safe_name = reserved_names.contains( name ) ? "`\(name)`" : name
+        
         // Setter and Getter of property value
         if _objc_support {
-            fileContent += "    @NSManaged public var \(name):\(t)\n"
+            fileContent += "    @NSManaged public var \(safe_name):\(t)\n"
         } else {
-            fileContent += "    public var \(name):\(t) { get { value(forKey: \"\(name)\") \(cast_t) } set { setValue(newValue, forKey: \"\(name)\") } }\n"
+            fileContent += "    public var \(safe_name):\(t) { get { value(forKey: \"\(safe_name)\") \(cast_t) } set { setValue(newValue, forKey: \"\(safe_name)\") } }\n"
             // Setter and Getter of property primitive value (raw)
-            let first = String(name.prefix(1))
-            let cname = first.uppercased() + String(name.dropFirst())
+            let first = String(safe_name.prefix(1))
+            let cname = first.uppercased() + String(safe_name.dropFirst())
             primitiveProperties.append("    public var primitive\(cname):\(t) { get { primitiveValue(forKey: \"primitive\(cname)\") \(cast_t) } set { setPrimitiveValue(newValue, forKey: \"primitive\(cname)\") } }\n")
         }
     }

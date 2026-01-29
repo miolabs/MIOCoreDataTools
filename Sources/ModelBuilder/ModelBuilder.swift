@@ -37,6 +37,8 @@ extension ModelBuilder
         
         mutating func run() throws
         {
+            print( "ModelParser version: 1.0" )
+            
 //            var enable = true
 //                        
 //            if let cfg_path = configPath {
