@@ -96,7 +96,7 @@ class ModelParser :NSObject, XMLParserDelegate
             let isAbstract = attributeDict["isAbstract"] ?? "NO"
 //            code_generation = attributeDict["codeGenerationType"] == "category"
             
-            current_entity = Entity( name: name, classname: classname, parenName: parentName, isAbstract: (isAbstract == "YES") )
+            current_entity = Entity( name: name, classname: classname, parentName: parentName, isAbstract: (isAbstract == "YES") )
             last_item = current_entity
         }
         else if (elementName == "attribute") {

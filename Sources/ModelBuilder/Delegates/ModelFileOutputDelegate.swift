@@ -32,8 +32,8 @@ class ModelFileOutputDelegate : ModelOutputDelegate
         for (_,e) in entities_by_name {
             if ( e.userInfo?[ "DBProtocol"] ?? "false" ) == "true" { e.isProtocol = true }
             if ( e.userInfo?[ "DBSyncType"] ?? "manager" ) == "server" { e.isServer = true }
-            if e.parenName == nil { continue }
-            e.parent = entities_by_name[ e.parenName! ]
+            if e.parentName == nil { continue }
+            e.parent = entities_by_name[ e.parentName! ]
         }
         
         // Remove parent protocol and add all attributes and relationsips

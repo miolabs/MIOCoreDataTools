@@ -13,10 +13,6 @@ class ModelClassesOutputDelegate : ModelOutputDelegate
     
     var fileContent:String = ""
     var filename:String = ""
-
-    var currentParentClassName:String?
-    var currentClassName:String = ""
-    var currentClassEntityName:String = ""
     
     var primitiveProperties:[String] = []
     var relationships:[String] = []
@@ -48,14 +44,10 @@ class ModelClassesOutputDelegate : ModelOutputDelegate
     
     func appendEntity( parser:ModelParser, entity:Entity )
     {
-        self.filename = "/\(entity.name)+CoreDataProperties.swift"
-        currentClassEntityName = entity.classname;
-        currentClassName = entity.classname;
+        self.filename = "/\(entity.classname)+CoreDataProperties.swift"
         
         relationships = []
         primitiveProperties = []
-        
-        currentParentClassName = entity.parenName
         
         fileContent = "\n"
         fileContent += "// Generated class \(entity.classname) by MIO CORE DATA Model Builder\n"
@@ -68,9 +60,9 @@ class ModelClassesOutputDelegate : ModelOutputDelegate
 //        fileContent += "  return NSFetchRequest<\(entity.classname)>(entityName: \"\(entity.classname)\") }\n\n"
         
         for attr in entity.attributes { appendAttribute( attr ) }        
-        for rel in entity.relationships { appendRelationship( rel ) }
+        for rel in entity.relationships { appendRelationship( entity: entity, rel ) }
         
-        closeModelEntity( parser: parser )
+        closeModelEntity( entity: entity, parser: parser )
     }
     
     func appendAttribute( _ attribute:Attribute )
@@ -146,7 +138,7 @@ class ModelClassesOutputDelegate : ModelOutputDelegate
         }
     }
     
-    func appendRelationship( _ relationship: Relationship )
+    func appendRelationship( entity:Entity, _ relationship: Relationship )
     {
         let name = relationship.name
         let toMany = relationship.toMany
@@ -170,7 +162,7 @@ class ModelClassesOutputDelegate : ModelOutputDelegate
                 fileContent += "    @NSManaged public var \(name):Set<\(destinationEntity)>?\n"
                 
                 var content = "// MARK: Generated accessors for \(name)\n"
-                content += "extension \(self.currentClassName)\n"
+                content += "extension \(entity.classname)\n"
                 content += "{\n"
                 content += "    @objc(add\(cname)Object:)\n"
                 //content += "    @NSManaged public func addTo\(cname)(_ value: \(destinationEntity))\n"
@@ -195,7 +187,7 @@ class ModelClassesOutputDelegate : ModelOutputDelegate
                 fileContent += "    public var \(name):Set<\(destinationEntity)>? { get { value(forKey: \"\(name)\") as? Set<\(destinationEntity)> } set { setValue(newValue, forKey: \"\(name)\") }}\n"
                 
                 var content = "// MARK: Generated accessors for \(name)\n"
-                content += "extension \(self.currentClassName)\n"
+                content += "extension \(entity.classname)\n"
                 content += "{\n"
                 content += "    public func add\(cname)Object(_ value: \(destinationEntity)) { _addObject(value, forKey: \"\(name)\") }\n"
                 content += "\n"
@@ -212,7 +204,7 @@ class ModelClassesOutputDelegate : ModelOutputDelegate
         }
     }
     
-    func closeModelEntity(parser:ModelParser)
+    func closeModelEntity(entity:Entity, parser:ModelParser)
     {
         fileContent += "}\n"
         
@@ -224,7 +216,7 @@ class ModelClassesOutputDelegate : ModelOutputDelegate
         {
             fileContent += "\n"
             fileContent += "// MARK: Generated accessors for primitive values\n"
-            fileContent += "extension \(self.currentClassName)\n"
+            fileContent += "extension \(entity.classname)\n"
             fileContent += "{\n"
             for primitiveProperty in primitiveProperties {
                 fileContent += primitiveProperty
@@ -237,27 +229,28 @@ class ModelClassesOutputDelegate : ModelOutputDelegate
         //Write to disc
         WriteTextFile(content:fileContent, path:path)
                 
-        let check_path = parser.modelCustomClassesPath + "/" + self.currentClassName + "+CoreDataClass.swift"
+        let check_path = parser.modelCustomClassesPath + "/" + entity.classname + "+CoreDataClass.swift"
         // Create Subclass in case that is not already create
         if ( FileManager.default.fileExists( atPath:check_path ) == false ) {
             var content = ""
             content += "//\n"
-            content += "// Generated class \(self.currentClassName)\n"
+            content += "// Generated class \(entity.classname)\n"
             content += "//\n"
             content += "import Foundation\n"
             content += "import MIOCoreData\n"
             content += "\n"
-            if _objc_support { content += "@objc(\(self.currentClassName))\n" }
-            content += "public class \(self.currentClassName) : \(currentParentClassName ?? "NSManagedObject")\n"
+            if _objc_support { content += "@objc(\(entity.classname))\n" }
+            let parent = entity.parentName != nil ? entityByName[entity.parentName!]?.classname : nil
+            content += "public class \(entity.classname) : \(parent ?? "NSManagedObject")\n"
             content += "{\n"
             content += "\n}\n"
             
-            let fp = modelPath + "/" + self.currentClassName + "+CoreDataClass.swift"
+            let fp = modelPath + "/" + entity.classname + "+CoreDataClass.swift"
             WriteTextFile(content: content, path: fp)
         }
         
         if !_objc_support {
-            _model_register_content += "\n\t_MIOCoreRegisterClass(type: " + self.currentClassName + ".self, forKey: \"" + self.currentClassName + "\")"
+            _model_register_content += "\n\t_MIOCoreRegisterClass(type: " + entity.classname + ".self, forKey: \"" + entity.classname + "\")"
         }
     }
     

@@ -13,7 +13,7 @@ class Entity : UserInfoProtocol
 {
     let name: String
     let classname:String
-    let parenName:String?
+    let parentName:String?
     let isAbstract:Bool
     var attributes:[Attribute] = []
     var relationships:[Relationship] = []
@@ -23,10 +23,10 @@ class Entity : UserInfoProtocol
     var isServer:Bool = false
     weak var parent:Entity? = nil
         
-    init(name: String, classname: String, parenName: String?, parent: Entity? = nil, isAbstract: Bool) {
+    init(name: String, classname: String, parentName: String?, parent: Entity? = nil, isAbstract: Bool) {
         self.name = name
         self.classname = classname
-        self.parenName = parenName
+        self.parentName = parentName
         self.parent = parent
         self.isAbstract = isAbstract
     }
