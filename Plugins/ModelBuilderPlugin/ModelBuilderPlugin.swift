@@ -50,7 +50,8 @@ extension ModelBuilderPlugin
         let environment = getenv("CORE_DATA_MODEL_FILE_NAME")
         print("CORE_DATA_MODEL_FILE_NAME: \(String(describing: environment))")
         
-        if inputPath.lastComponent != "POSModel3.xcdatamodeld" { return .none }
+//        if inputPath.lastComponent != "POSModel3.xcdatamodeld" { return .none }
+        if inputPath.lastComponent != "DualLinkDB.xcdatamodeld" { return .none }
         
         var arguments:[String] = []
 
