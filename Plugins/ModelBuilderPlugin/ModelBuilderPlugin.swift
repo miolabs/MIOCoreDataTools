@@ -51,7 +51,8 @@ extension ModelBuilderPlugin
         print("CORE_DATA_MODEL_FILE_NAME: \(String(describing: environment))")
         
 //        if inputPath.lastComponent != "POSModel3.xcdatamodeld" { return .none }
-        if inputPath.lastComponent != "DualLinkDB.xcdatamodeld" { return .none }
+        if inputPath.lastComponent != "DLDBManager.xcdatamodeld" { return .none }
+//        if inputPath.lastComponent != "DualLinkDB.xcdatamodeld" { return .none }
         
         var arguments:[String] = []
 
