@@ -9,7 +9,7 @@ struct ModelBuilderPlugin: BuildToolPlugin
     {
         // This plugin only runs for package targets that can have source files.
         guard let sourceFiles = target.sourceModule?.sourceFiles else { return [] }
-        
+                
         // Find the code generator tool to run (replace this with the actual one).
         let generatorTool = try context.tool( named: "model-builder" )
         
@@ -28,6 +28,17 @@ extension ModelBuilderPlugin: XcodeBuildToolPlugin
     // Entry point for creating build commands for targets in Xcode projects.
     func createBuildCommands(context: XcodePluginContext, target: XcodeTarget) throws -> [Command]
     {
+        let activeDatamodel = ProcessInfo.processInfo.environment["ACTIVE_DATAMODEL"]
+         
+        print("\(context.xcodeProject.displayName)")
+        
+        guard let modelName = activeDatamodel else {
+            Diagnostics.error("ACTIVE_DATAMODEL environment variable not set")
+            return []
+        }
+        
+        print( "GENERATING MODEL ")
+        
         // Find the code generator tool to run (replace this with the actual one).
         let generatorTool = try context.tool(named: "model-builder")
                 
@@ -45,14 +56,19 @@ extension ModelBuilderPlugin
     /// Shared function that returns a configured build command if the input files is one that should be processed.
     func createBuildCommand(for inputPath: Path, in outputDirectoryPath: Path, with toolPath: Path, configPath: Path? = nil, objc:Bool = false ) -> Command? {
         // Skip any file that doesn't have the extension we're looking for (replace this with the actual one).
+                
         guard inputPath.extension == "xcdatamodeld" else { return .none }
-        
-        let environment = getenv("CORE_DATA_MODEL_FILE_NAME")
-        print("CORE_DATA_MODEL_FILE_NAME: \(String(describing: environment))")
-        
-//        if inputPath.lastComponent != "POSModel3.xcdatamodeld" { return .none }
+                
+        #if POS_COMPATIBILITY
+        print("POS MODEL")
+        if inputPath.lastComponent != "POSModel3.xcdatamodeld" { return .none }
+        #elseif MANAGER_MODEL
+        print("MAANGER MODEL")
         if inputPath.lastComponent != "DLDBManager.xcdatamodeld" { return .none }
-//        if inputPath.lastComponent != "DualLinkDB.xcdatamodeld" { return .none }
+        #else
+        print("DUAL LINK MODEL")
+        if inputPath.lastComponent != "DualLinkDB.xcdatamodeld" { return .none }
+        #endif
         
         var arguments:[String] = []
 
