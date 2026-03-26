@@ -28,17 +28,6 @@ extension ModelBuilderPlugin: XcodeBuildToolPlugin
     // Entry point for creating build commands for targets in Xcode projects.
     func createBuildCommands(context: XcodePluginContext, target: XcodeTarget) throws -> [Command]
     {
-        let activeDatamodel = ProcessInfo.processInfo.environment["ACTIVE_DATAMODEL"]
-         
-        print("\(context.xcodeProject.displayName)")
-        
-        guard let modelName = activeDatamodel else {
-            Diagnostics.error("ACTIVE_DATAMODEL environment variable not set")
-            return []
-        }
-        
-        print( "GENERATING MODEL ")
-        
         // Find the code generator tool to run (replace this with the actual one).
         let generatorTool = try context.tool(named: "model-builder")
                 
@@ -58,11 +47,10 @@ extension ModelBuilderPlugin
         // Skip any file that doesn't have the extension we're looking for (replace this with the actual one).
                 
         guard inputPath.extension == "xcdatamodeld" else { return .none }
-        
+
         var arguments:[String] = []
 
         #if os(Linux)
-        if objc { arguments.append( "--objc" ) }
         arguments.append( "-o" )
         arguments.append( "\(outputDirectoryPath)" )
         arguments.append( "\(inputPath)" )
