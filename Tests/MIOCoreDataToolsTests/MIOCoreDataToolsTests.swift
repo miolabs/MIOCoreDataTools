@@ -1,30 +1,36 @@
 //
 //  MIOCoreDataToolsTests.swift
-//  
+//  MIOCoreDataToolsTests
 //
-//  Created by Javier Segura Perez on 28/1/24.
+//  The class generator maps each model attributeType token to the Swift
+//  property type Apple's own generator would emit.
 //
+
 import Foundation
 import XCTest
+@testable import ModelBuilder
 
-final class MIOCoreDataToolTests: XCTestCase {
-    
-    func testHelp() throws {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct
-        // results.
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/git")
-        process.arguments = ["log", "--pretty=format:- %an <%ae>%n"]
+final class ModelClassesOutputDelegateTests: XCTestCase {
 
-        let outputPipe = Pipe()
-        process.standardOutput = outputPipe
-        try process.run()
-        process.waitUntilExit()
+    private func property(type: String, optional: Bool = true, objc: Bool = false) -> String {
+        let delegate = ModelClassesOutputDelegate(objcSupport: objc)
+        delegate.appendAttribute(Attribute(name: "value", type: type, optional: optional, defaultValue: nil, usesScalarValueType: false))
+        return delegate.fileContent.trimmingCharacters(in: .whitespacesAndNewlines)
+    }
 
-        let outputData = outputPipe.fileHandleForReading.readDataToEndOfFile()
-        let output = String(decoding: outputData, as: UTF8.self)
-        
-        XCTAssertEqual("", "Hello, World!")
+    func testBinaryBecomesData() {
+        XCTAssertTrue(property(type: "Binary").hasPrefix("public var value:Data? { get { value(forKey: \"value\") as? Data }"), property(type: "Binary"))
+        XCTAssertTrue(property(type: "Binary", optional: false).hasPrefix("public var value:Data { get { value(forKey: \"value\") as! Data }"))
+        XCTAssertEqual(property(type: "Binary", objc: true), "@NSManaged public var value:Data?")
+    }
+
+    func testURIBecomesURL() {
+        XCTAssertTrue(property(type: "URI").hasPrefix("public var value:URL? { get { value(forKey: \"value\") as? URL }"), property(type: "URI"))
+        XCTAssertTrue(property(type: "URI", optional: false).hasPrefix("public var value:URL { get { value(forKey: \"value\") as! URL }"))
+        XCTAssertEqual(property(type: "URI", objc: true), "@NSManaged public var value:URL?")
+    }
+
+    func testStringStillGoesThroughTheDefaultBranch() {
+        XCTAssertTrue(property(type: "String").hasPrefix("public var value:String? { get { value(forKey: \"value\") as? String }"))
     }
 }
