@@ -116,6 +116,15 @@ class ModelClassesOutputDelegate : ModelOutputDelegate
         case "Transformable":
             t = optional ? "Any?" : "Any"
             cast_t = optional ? "" : "as! Any"
+
+        case "Binary":
+            t = optional ? "Data?" : "Data"
+            cast_t = optional ? "as? Data" : "as! Data"
+
+        case "URI":
+            // Apple Core Data exposes a URI attribute as a URL.
+            t = optional ? "URL?" : "URL"
+            cast_t = optional ? "as? URL" : "as! URL"
             
         default:
             t = optional ? "\(type)?" : type
