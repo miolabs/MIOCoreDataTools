@@ -136,14 +136,19 @@ class ModelClassesOutputDelegate : ModelOutputDelegate
         let safe_name = reserved_names.contains( name ) ? "`\(name)`" : name
         
         // Setter and Getter of property value
+        // NOTE: the forKey string must always be the model property name — the
+        // Swift accessor name (backtick-escaped or "primitive"-prefixed) is not
+        // a key the entity knows about.
         if _objc_support {
             fileContent += "    @NSManaged public var \(safe_name):\(t)\n"
         } else {
-            fileContent += "    public var \(safe_name):\(t) { get { value(forKey: \"\(safe_name)\") \(cast_t) } set { setValue(newValue, forKey: \"\(safe_name)\") } }\n"
+            fileContent += "    public var \(safe_name):\(t) { get { value(forKey: \"\(name)\") \(cast_t) } set { setValue(newValue, forKey: \"\(name)\") } }\n"
             // Setter and Getter of property primitive value (raw)
-            let first = String(safe_name.prefix(1))
-            let cname = first.uppercased() + String(safe_name.dropFirst())
-            primitiveProperties.append("    public var primitive\(cname):\(t) { get { primitiveValue(forKey: \"primitive\(cname)\") \(cast_t) } set { setPrimitiveValue(newValue, forKey: \"primitive\(cname)\") } }\n")
+            // cname comes from the raw name: safe_name may carry backticks,
+            // and "primitive"-prefixed names are never reserved words anyway
+            let first = String(name.prefix(1))
+            let cname = first.uppercased() + String(name.dropFirst())
+            primitiveProperties.append("    public var primitive\(cname):\(t) { get { primitiveValue(forKey: \"\(name)\") \(cast_t) } set { setPrimitiveValue(newValue, forKey: \"\(name)\") } }\n")
         }
     }
     
