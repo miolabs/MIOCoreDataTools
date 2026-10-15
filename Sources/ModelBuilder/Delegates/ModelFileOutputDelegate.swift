@@ -202,7 +202,8 @@ extension Attribute
         
         if let defaultValue {
             let v = defaultValue.replacingOccurrences(of: "\"", with: "").trimmingCharacters(in: .whitespacesAndNewlines)
-            attrs.append( ( "defaultValue", v ) )
+            // "defaultValueString" is the key Xcode writes and the one ModelParser reads back.
+            attrs.append( ( "defaultValueString", v ) )
         }
         return attrs
     }
