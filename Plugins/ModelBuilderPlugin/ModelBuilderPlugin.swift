@@ -48,6 +48,13 @@ extension ModelBuilderPlugin
                 
         guard inputPath.extension == "xcdatamodeld" else { return .none }
 
+        // The generator writes one file per entity of the current model but never removes the
+        // files of entities that are gone: with the output directory restored from a build cache
+        // (CI) or kept between builds (local), a class deleted from the model kept compiling and
+        // clashed with the entity its properties moved to. The prebuild command regenerates every
+        // class on every build anyway, so stale outputs are cleared here first.
+        removeGeneratedClasses( in: outputDirectoryPath )
+
         var arguments:[String] = []
 
         #if os(Linux)
@@ -71,4 +78,14 @@ extension ModelBuilderPlugin
     }
 }
 
-
+extension ModelBuilderPlugin
+{
+    /// Deletes the Swift files a previous run left in the plugin output directory.
+    func removeGeneratedClasses ( in outputDirectoryPath: Path ) {
+        let fm = FileManager.default
+        guard let names = try? fm.contentsOfDirectory( atPath: outputDirectoryPath.string ) else { return }
+        for name in names where name.hasSuffix( ".swift" ) {
+            try? fm.removeItem( atPath: outputDirectoryPath.appending( name ).string )
+        }
+    }
+}
